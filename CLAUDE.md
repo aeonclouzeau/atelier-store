@@ -37,3 +37,7 @@ Copy `.env.example` to `.env.local` and set `DATABASE_URL` (use Neon's pooled UR
 - **Auth**: `src/lib/auth.ts` is the server instance (Drizzle adapter, `pg` provider, `nextCookies()` plugin so Server Actions can set cookies). It is mounted as a catch-all at `src/app/api/auth/[...all]/route.ts`. `src/lib/auth-client.ts` is the React client and reads `NEXT_PUBLIC_APP_URL`. Rerun `pnpm auth:generate` after adding Better Auth plugins that need new tables.
 - **Types**: `LayoutProps<"/">` and `PageProps` are global route types that `next typegen` generates. Run `pnpm typecheck` (not bare `tsc`) so they exist.
 - Import alias: `@/*` → `src/*`.
+
+## Design
+
+Use the design system (`src\app\globals.css`) when building store front pages.

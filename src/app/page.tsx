@@ -3,26 +3,35 @@ import Link from "next/link";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { ProductCard } from "@/components/product-card";
 import { ProductCarousel } from "@/components/product-carousel";
+import { getProductsBySlug } from "@/lib/catalog";
+import type { Product } from "@/lib/products";
 import {
-  accessories,
+  accessorySlugs,
   categories,
   collections,
   hero,
-  newArrivals,
+  newArrivalSlugs,
   services,
   story,
 } from "@/lib/sample-data";
 
-export default function Home() {
+// Refresh product data (stock in particular) at most once a minute
+export const revalidate = 60;
+
+export default async function Home() {
+  const [newArrivals, accessories] = await Promise.all([
+    getProductsBySlug(newArrivalSlugs),
+    getProductsBySlug(accessorySlugs),
+  ]);
   return (
     <main className="flex-1">
       <Hero />
       <Intro />
       <CategoryTiles />
-      <NewArrivals />
+      <NewArrivals products={newArrivals} />
       <Story />
       <Collections />
-      <Accessories />
+      <Accessories products={accessories} />
       <Services />
       <Newsletter />
     </main>
@@ -144,7 +153,7 @@ function SectionHeader({
   );
 }
 
-function NewArrivals() {
+function NewArrivals({ products }: { products: Product[] }) {
   return (
     <section aria-labelledby="new-arrivals" className="section">
       <div className="container-page mb-8 flex items-end justify-between gap-4 md:mb-10">
@@ -156,7 +165,7 @@ function NewArrivals() {
         </Link>
       </div>
       <div className="grid-products">
-        {newArrivals.map((product, i) => (
+        {products.map((product, i) => (
           <ProductCard
             key={product.slug}
             product={product}
@@ -234,7 +243,7 @@ function Collections() {
   );
 }
 
-function Accessories() {
+function Accessories({ products }: { products: Product[] }) {
   return (
     <section aria-labelledby="accessories" className="section pt-0">
       <SectionHeader
@@ -243,7 +252,7 @@ function Accessories() {
         href="/accessories"
         linkLabel="View all"
       />
-      <ProductCarousel products={accessories} label="Accessories" />
+      <ProductCarousel products={products} label="Accessories" />
     </section>
   );
 }

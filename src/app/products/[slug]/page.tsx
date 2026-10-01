@@ -5,23 +5,22 @@ import { notFound } from "next/navigation";
 import { PlusIcon } from "@/components/icons";
 import { ProductCarousel } from "@/components/product-carousel";
 import { ProductPurchase } from "@/components/product-purchase";
-import {
-  categories,
-  formatPrice,
-  getProduct,
-  getRelatedProducts,
-  products,
-} from "@/lib/products";
+import { getProduct, getProductSlugs, getRelatedProducts } from "@/lib/catalog";
+import { formatPrice } from "@/lib/products";
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
+// Refresh product data (stock in particular) at most once a minute
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const slugs = await getProductSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps<"/products/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const product = await getProduct(slug);
   if (!product) return {};
   return {
     title: `${product.name} · Atelier`,
@@ -31,11 +30,11 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: PageProps<"/products/[slug]">) {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const product = await getProduct(slug);
   if (!product) notFound();
 
-  const category = categories[product.category];
-  const related = getRelatedProducts(product);
+  const { category } = product;
+  const related = await getRelatedProducts(product);
 
   return (
     <main className="flex-1">
@@ -81,7 +80,7 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
                 <li aria-hidden="true">/</li>
                 <li>
                   <Link href={category.href} className="link-muted">
-                    {category.label}
+                    {category.name}
                   </Link>
                 </li>
                 <li aria-hidden="true">/</li>
@@ -93,7 +92,7 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
 
             <header className="flex flex-col gap-2">
               <div className="flex items-center gap-3">
-                <p className="text-label text-muted">{category.label}</p>
+                <p className="text-label text-muted">{category.name}</p>
                 {product.badge && (
                   <span className="text-badge border border-line-strong px-1.5 py-0.5 uppercase">
                     {product.badge}

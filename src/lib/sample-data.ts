@@ -1,7 +1,5 @@
 // Placeholder homepage content until it is managed in the database.
 
-import { getProductsBySlug } from "@/lib/products";
-
 export type Collection = {
   slug: string;
   title: string;
@@ -44,7 +42,8 @@ export const categories = [
   },
 ];
 
-export const newArrivals = getProductsBySlug([
+/** Products are loaded from the database by slug, in this order. */
+export const newArrivalSlugs = [
   "leather-biker-jacket",
   "fringed-knit-poncho",
   "suede-bomber-jacket",
@@ -53,7 +52,7 @@ export const newArrivals = getProductsBySlug([
   "suede-brogue",
   "chambray-dot-shirt",
   "emblem-cotton-t-shirt",
-]);
+];
 
 export const story = {
   eyebrow: "The Knitwear Story",
@@ -85,7 +84,7 @@ export const collections: Collection[] = [
   },
 ];
 
-export const accessories = getProductsBySlug([
+export const accessorySlugs = [
   "top-handle-bag",
   "chain-shoulder-bag",
   "woven-basket-bag",
@@ -95,7 +94,7 @@ export const accessories = getProductsBySlug([
   "leather-strap-watch",
   "gold-chain-bracelet",
   "bifold-wallet",
-]);
+];
 
 export const services = [
   {

@@ -6,10 +6,13 @@ export function ProductCard({
   product,
   sizes,
   className,
+  priority,
 }: {
   product: Product;
   sizes: string;
   className?: string;
+  /** Eager-load images that sit above the fold. */
+  priority?: boolean;
 }) {
   const [image] = product.images;
   const soldOut = totalStock(product) === 0;
@@ -29,6 +32,8 @@ export function ProductCard({
             alt={image.alt}
             fill
             sizes={sizes}
+            loading={priority ? "eager" : undefined}
+            fetchPriority={priority ? "high" : undefined}
             className="object-cover p-0 transition-transform duration-700 group-hover:scale-[1.03]"
           />
         </div>

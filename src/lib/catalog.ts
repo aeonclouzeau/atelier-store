@@ -66,9 +66,21 @@ export const getRelatedProducts = cache(async (product: Product, limit = 8) => {
     with: withCategoryAndStock,
     // Callback form so the columns resolve to the relational query's table alias
     orderBy: (p, { asc, desc }) => [
-      desc(sql`${p.categoryId} = (select category_id from ${products} where id = ${product.id})`),
+      desc(
+        sql`${p.categoryId} = (select category_id from ${products} where id = ${product.id})`,
+      ),
       asc(p.id),
     ],
+    limit,
+  });
+  return rows.map(toProduct);
+});
+
+/** Most recently added first; id breaks ties for rows created in the same batch. */
+export const getNewArrivals = cache(async (limit = 24) => {
+  const rows = await db.query.products.findMany({
+    with: withCategoryAndStock,
+    orderBy: (p, { desc }) => [desc(p.createdAt), desc(p.id)],
     limit,
   });
   return rows.map(toProduct);

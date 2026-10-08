@@ -86,7 +86,29 @@ export const getNewArrivals = cache(async (limit = 24) => {
   return rows.map(toProduct);
 });
 
-export const getProductSlugs = cache(async () => {
+export const getCategorySlugs = cache(async () => {
+  const rows = await db.select({ slug: categories.slug }).from(categories);
+  return rows.map((row) => row.slug);
+});
+
+/** A category and its products, newest first; undefined for an unknown slug. */
+export const getCategoryWithProducts = cache(async (slug: string) => {
+  const row = await db.query.categories.findFirst({
+    where: eq(categories.slug, slug),
+  });
+  if (!row) return undefined;
+  const productRows = await db.query.products.findMany({
+    where: eq(products.categoryId, row.id),
+    with: withCategoryAndStock,
+    orderBy: (p, { desc }) => [desc(p.createdAt), desc(p.id)],
+  });
+  return {
+    category: { slug: row.slug, name: row.name, href: `/${row.slug}` },
+    products: productRows.map(toProduct),
+  };
+});
+
+export const getProductSlugs =cache(async () => {
   const rows = await db.select({ slug: products.slug }).from(products);
   return rows.map((row) => row.slug);
 });
